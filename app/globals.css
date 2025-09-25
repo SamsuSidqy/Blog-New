@@ -1,8 +1,29 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Closeness Fonts';
+  src: url('/fonts/Closeness.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Deguland Fonts';
+  src: url('/fonts/Deguland.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Papernotes Fonts';
+  src: url('/fonts/Papernotes.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #262626;
+  --foreground: #ffffff;
 }
 
 @theme inline {
