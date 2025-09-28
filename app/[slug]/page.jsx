@@ -78,7 +78,10 @@ export default function ReadBlog({params}){
 					<h2 className="text-3xl text-center font-[Closeness_Fonts]" >Cara Membuat Sabu Sabu Fixx No Root</h2>
 				</div>
 
+
 				<div className="font-serif text-lg" >
+					{/*<div dangerouslySetInnerHTML={{__html:``}} >
+					</div>*/}
 					<p className=" text-justify">
 					Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
 					Praesent a lorem ac nulla tempor porta. Morbi non lorem metus. 

@@ -20,4 +20,15 @@ export default class BlogModel{
 			throw new Error(er)
 		}
 	}
+
+
+	async ListBlogDashboard(){
+		try{
+			const db = await this.#Database()
+			const results = await db.find().toArray()
+			return results
+		}catch(err){
+			throw new Error(err)
+		}
+	}
 }

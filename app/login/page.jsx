@@ -53,8 +53,8 @@ export default function LoginPage() {
     })
 
     if (res.ok) {
-      setLoading(false)
       router.push('/dashboard')
+      setLoading(false)
     } else {
       setLoading(false)
       const error = await res.text()

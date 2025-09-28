@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import EnkripsiAES from '@/lib/EncryptCookie'
+import { getToken } from "@/lib/@Cookies"
 
-export async function GET(request) {
-  return NextResponse.json({ message: 'GET request received' }, { status: 200 });
-}
 
 export async function POST(request) {
   try {
@@ -24,3 +22,4 @@ export async function POST(request) {
     return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
   }
 }
+

@@ -9,6 +9,7 @@ export default class BlogSchema{
 		tagline : Joi.custom((val, helper) => {
 			return val.replace(/ /g,"").split("#").slice(1)
 		}),
+		publish: Joi.boolean().default(true),
 		media: Joi.string(),		
 		created_at: Joi.date().iso().default(WaktuTimestampCreatedat().toISOString()),			
 	})

@@ -4,6 +4,8 @@ import php from 'highlight.js/lib/languages/php';
 import java from 'highlight.js/lib/languages/java';
 import python from 'highlight.js/lib/languages/python';
 import "highlight.js/styles/atom-one-dark.css";
+import { renderToStaticMarkup } from 'react-dom/server';
+import { FaPaste   } from "react-icons/fa"
 
 // Register languages
 hljs.registerLanguage('javascript', javascript);
@@ -37,23 +39,37 @@ function serializeNode(node) {
 
   switch (node.type) {
     case 'paragraph':
-      return `<p${alignAttr} class="text-justify">${children}</p>`;
+      return `<div class="font-serif text-lg mt-8" ><p${alignAttr} class="text-justify">${children}</p></div>`;
     case 'heading-one':
-      return `<h1${alignAttr}>${children}</h1>`;
+      return `<h1${alignAttr}>${children}</h1></br>`;
     case 'heading-two':
-      return `<h2${alignAttr}>${children}</h2>`;
+      return `<h2${alignAttr}>${children}</h2></br>`;
     case 'block-quote':
-      return `<blockquote${alignAttr} class="bg-white text-black p-4 italic font-bold border-l-4 border-indigo-500">${children}</blockquote>`;
+      return `<blockquote${alignAttr} class="bg-white text-black p-4 italic font-bold border-l-4 border-indigo-500">${children}</blockquote></br>`;
     case 'numbered-list':
-      return `<ol${alignAttr}>${children}</ol>`;
+      return `<div class="mx-15"><ol class="list-decimal" ${alignAttr}>${children}</ol></div></br>`;
     case 'bulleted-list':
-      return `<ul${alignAttr}>${children}</ul>`;
+      return `<div class="mx-15"><ul class="list-disc" ${alignAttr}>${children}</ul></div></br>`;
     case 'list-item':
       return `<li${alignAttr}>${children}</li>`;
+    case 'image-util':
+      return `
+      <div
+          class="relative flex justify-center items-center my-4"
+        >
+          <img
+            src="${node.url}"
+            alt="Uploaded"
+            class="w-full lg:h-[400px] object-contain"
+          />
+      </div></br>
+      `
     case 'code':
       const codeText = children;
       const highlightedCode = hljs.highlightAuto(codeText).value;
-      return `<pre${alignAttr} class="text-white"><code class="hljs">${highlightedCode}</code></pre>`;
+      const pasteIcon = renderToStaticMarkup(<FaPaste />);
+      return `<pre${alignAttr} class="text-white relative">      
+      <code class="hljs">${highlightedCode}</code></pre></br>`;
     default:
       return children;
   }
@@ -64,6 +80,11 @@ function deserialize(html) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
+  function decodeHtml(html) {
+    const txt = document.createElement('textarea');
+    txt.innerHTML = html;
+    return txt.value;
+  }
   function deserializeElement(el) {
     if (el.nodeType === 3) {
       return [{ text: el.textContent }];
@@ -98,7 +119,7 @@ function deserialize(html) {
       case 'PRE':
         const code = el.querySelector('code');
         const lang = code ? code.getAttribute('data-language') : '';
-        const codeText = code ? code.textContent : '';
+        const codeText = code ? decodeHtml(code.textContent) : '';
         return [{
           type: 'code',
           language: lang || 'javascript',
@@ -117,8 +138,23 @@ function deserialize(html) {
     }
   }
 
-  const body = doc.body;
-  return Array.from(body.childNodes).flatMap(deserializeElement);
+  // Helper to ensure every node has at least one text child
+  function ensureTextNodes(nodes) {
+    return nodes.map(node => {
+      if (node.children) {
+        const fixedChildren = ensureTextNodes(node.children);
+        if (fixedChildren.length === 0) {
+          return { ...node, children: [{ text: '' }] };
+        }
+        return { ...node, children: fixedChildren };
+      }
+      return node;
+    });
+  }
+
+  const rawNodes = Array.from(doc.body.childNodes).flatMap(deserializeElement);
+  return ensureTextNodes(rawNodes);
 }
+
 
 export { serialize, deserialize };
