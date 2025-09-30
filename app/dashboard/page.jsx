@@ -7,6 +7,8 @@ import { FaDatabase, FaImages, FaPencilAlt } from "react-icons/fa";
 import { IoIosCloseCircle } from "react-icons/io";
 import { motion, AnimatePresence  } from "framer-motion";
 import { serialize, deserialize } from "./component/utils/SlateSerialize"
+import ComponentFilesCdn from "./component/FileCdn"
+
 import Alerts from "../_utils/Alert"
 import ToggleSwitch from "../_utils/ToogleOn"
 import axios from "axios"
@@ -78,7 +80,8 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(false)
     const [editorKey, setEditorKey] = useState(0);
     const [publish, setPublish] = useState(true)
-    const [updateBlog, setUpdateBlog] = useState(false)
+    const [mediaBlog, setMediaBlog] = useState(null)
+    const [updateBlog, setUpdateBlog] = useState(null)
 
     const HandlePublish = async() => {
     	setLoading(true)
@@ -158,12 +161,11 @@ export default function Dashboard() {
     	return `${tgl.getDate()} ${bln[tgl.getMonth()]} ${tgl.getFullYear()}, ${tgl.getHours()}:${tgl.getMinutes()}`
     }
 
-    const UpdateDataBlog = async(data) => {
-    	setUpdateBlog(true)
+    const UpdateDataBlog = (data) => {
+    	setUpdateBlog(data)
     	setIsModalOpen(false)
     	setTitle(data.title)
     	const deserialized = deserialize(data.body);
-    	console.log(deserialized)
 		  if (!deserialized || deserialized.length === 0) {
 		    setValue(initialValue);
 		  } else {
@@ -172,6 +174,62 @@ export default function Dashboard() {
     	setEditorKey(editorKey + 1)
     	setPublish(data.publish)
     	setTags(data.tagline)    	
+    	setMediaBlog(data.media)
+    	setTagValue(`#${data.tagline.join("#")}`)
+    }
+
+    const HandleUpdateBlog = async() => {
+    	const body = serialize(value)
+    	const formData = new FormData()
+
+    	if (!body.trim() || !title.trim()) {
+		    setLoading(false);
+		    setIsAlertOpen(true);
+		    setAlertMessage("Form Required Di Perlukan");
+		    setAlertStatus(false);
+		    setAlertTitle("Failed");
+		    return
+		}
+
+
+    	if (files) {
+    		formData.append("file",files)
+    	}
+    	formData.append("body",body)
+    	formData.append("title",title)
+    	formData.append('tagline',tagValue)
+    	formData.append("slugOld",updateBlog.slug)
+    	formData.append("publish",publish)
+
+    	const res = await axios.put(`${process.env.NEXT_PUBLIC_HOSTNAME}/api/blog/update`,
+    		formData,{    		
+    		headers:{
+    			"Content-Type":'multipart/form-data'
+    		},
+    		validateStatus:false
+    	})
+
+    	if (res.status === 200) {
+    		setLoading(false)
+    		setIsAlertOpen(true)
+    		setAlertMessage("Blog Berhasil Di Update")
+    		setAlertStatus(true)
+    		setAlertTitle("Succsess") 
+    		setValue(initialValue)      		
+    	}else{
+    		setLoading(false)
+    		setIsAlertOpen(true)
+    		setAlertMessage("Blog Gagal Di Update")
+    		setAlertStatus(false)
+    		setAlertTitle("Failed")
+    		setValue(initialValue)   
+    	}
+    	setUpdateBlog(null)
+    	setTags([])
+    	setTitle('')
+    	setFiles(null)
+    	setTagValue('') 
+    	setEditorKey(editorKey + 1)
     }
 
     return (
@@ -179,14 +237,14 @@ export default function Dashboard() {
             <HeaderDashboard />
             <div className="hidden lg:block bg-white my-15 mx-20 px-10 pt-10 flex flex-col gap-10">
                 <div className="flex flex-row justify-between text-black items-center">
-                    {!loading ? <div onClick={HandlePublish} className="w-20 bg-black text-white flex justify-center px-15 py-2 rounded-md hover:bg-blue-400 cursor-pointer"
-                    >Publish</div> : <BtnSkelton />}
+                    {!loading ? <div onClick={updateBlog ? HandleUpdateBlog : HandlePublish} className="w-20 bg-black text-white flex justify-center px-15 py-2 rounded-md hover:bg-blue-400 cursor-pointer"
+                    >{updateBlog ? "Update" :"Publish"}</div> : <BtnSkelton />}
                     <div className="flex flex-row text-2xl justify-center gap-5">
                         <div onClick={LihatDataBlog} className="cursor-pointer hover:text-blue-600">
                             <FaDatabase />
                         </div>
 
-                        <div onClick={() => refFile.current.click()} className="cursor-pointer hover:text-blue-600">
+                        <div onClick={() => refFile.current.click()} className={mediaBlog ? "cursor-pointer text-blue-600" :"cursor-pointer hover:text-blue-600"}>
                             <FaImages />
                             <input
                             required={true} 
@@ -245,6 +303,8 @@ export default function Dashboard() {
 
                 <RichTextExample key={editorKey} value={value} onChange={setValue} />
             </div>
+
+            <ComponentFilesCdn />
 
             {/* Modal */}
             {isModalOpen && (

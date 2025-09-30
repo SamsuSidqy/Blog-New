@@ -16,19 +16,32 @@ import { withHistory } from "slate-history";
 import { FaJava, FaPhp, FaPython, FaImages } from "react-icons/fa";
 
 import hljs from "highlight.js";
-import javascript from "highlight.js/lib/languages/javascript";
-import php from "highlight.js/lib/languages/php";
-import java from "highlight.js/lib/languages/java";
-import python from "highlight.js/lib/languages/python";
+import javascript from 'highlight.js/lib/languages/javascript';
+import typescript from 'highlight.js/lib/languages/typescript';
+import xml from 'highlight.js/lib/languages/xml'; // Untuk JSX/HTML
+import golang from 'highlight.js/lib/languages/go';
+import python from 'highlight.js/lib/languages/python';
+import php from 'highlight.js/lib/languages/php';
+import java from 'highlight.js/lib/languages/java';
+import shell from 'highlight.js/lib/languages/shell';
+
+hljs.registerLanguage('javascript', javascript);
+hljs.registerLanguage('typescript', typescript);
+hljs.registerLanguage('jsx', xml);         // JSX pakai xml
+hljs.registerLanguage('tsx', typescript);  // TSX pakai typescript
+hljs.registerLanguage('html', xml);
+hljs.registerLanguage('go', golang);
+hljs.registerLanguage('python', python);
+hljs.registerLanguage('php', php);
+hljs.registerLanguage('java', java);
+hljs.registerLanguage('shell', shell);
+hljs.registerLanguage('bash', shell);
+
 import "highlight.js/styles/atom-one-dark.css";
 
 import { styleMap } from "./utils/styleSlate"; // Pastikan ini tersedia
 
-// Register languages for highlight.js
-hljs.registerLanguage("javascript", javascript);
-hljs.registerLanguage("python", python);
-hljs.registerLanguage("java", java);
-hljs.registerLanguage("php", php);
+
 
 const HOTKEYS = {
   "mod+b": "bold",

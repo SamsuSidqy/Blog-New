@@ -1,19 +1,14 @@
-import ServicesDashboardList from "@/backend/service/DashboardList"
+import ServicesKontentList from "@/backend/service/KontenList"
 import { NextResponse } from 'next/server';
 import {getToken as sesi} from "@/lib/@Cookies"
-import rateLimiter from "@/lib/RateLimiter"
+import rateLimiter from "@/lib/RateLimiterAnonym"
 
 export async function GET(request,response) {
 	try{
 		const ip = request.headers.get('x-forwarded-for') || "unknown"
-		await rateLimiter.consume(ip)
+		await rateLimiter.consume(ip)		
 
-		const session = await sesi()
-		if (!session) {
-			return NextResponse.json({status:401, message:"Nahh Were Good Budy"},{ status:401 })
-		}
-
-		const serv = await ServicesDashboardList()
+		const serv = await ServicesKontentList()
 		return NextResponse.json(serv,{ status:serv.status })
 	}catch(err){
 		if (err?.msBeforeNext) {
@@ -22,5 +17,9 @@ export async function GET(request,response) {
 	        { status: 429 }
 	      );
 	    }
+	    return NextResponse.json(
+	        { status: 500, message: "Kesalahan Di Server" },
+	        { status: 500 }
+	     );
 	}
 }

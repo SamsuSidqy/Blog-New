@@ -31,4 +31,35 @@ export default class BlogModel{
 			throw new Error(err)
 		}
 	}
+
+	async ListBlogKonten(){
+		try{
+			const db = await this.#Database()
+			const results = await db.find().sort({ createdAt: -1 }).toArray()
+			return results
+		}catch(err){
+			throw new Error(err)
+		}
+	}
+
+	async UpdateBlogData(slug,data){
+		try{
+			const db = await this.#Database()
+			const results = await db.updateOne({
+				slug:slug
+			},{$set:data})			
+			return results
+		}catch(err){
+			throw new Error(err)
+		}
+	}
+	async LookBlog(slug){
+		try{
+			const db = await this.#Database()
+			const results = await db.findOne({slug:slug})
+			return results
+		}catch(err){
+			throw new Error(err)
+		}
+	}
 }

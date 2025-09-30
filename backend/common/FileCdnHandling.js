@@ -1,7 +1,8 @@
 import path from 'path';
 import { writeFile } from 'fs/promises';
+import { unlink } from 'node:fs';
 
-export default async function HandlingFileUpload(files,namefile){
+export async function HandlingFileCdnUpload(files,namefile){
 	try{
 		const arrayBuffer = await files.arrayBuffer();
     	const buffer = Buffer.from(arrayBuffer);
@@ -10,6 +11,18 @@ export default async function HandlingFileUpload(files,namefile){
 	    const filePath = path.join(process.env.FOLDERCDN, fileName);
 	    await writeFile(filePath, buffer);
 	    return fileName
+	}catch(err){
+		return false
+	}
+}
+
+export async function HandlingFileCdnDelete(nameFile){
+	try{
+		const filePath = path.join(process.env.FOLDERCDN, nameFile);
+		unlink(filePath,(err) => {
+			if (err) { throw errr }
+			return true
+		})
 	}catch(err){
 		return false
 	}

@@ -65,11 +65,13 @@ function serializeNode(node) {
       </div></br>
       `
     case 'code':
-      const codeText = children;
-      const highlightedCode = hljs.highlightAuto(codeText).value;
-      const pasteIcon = renderToStaticMarkup(<FaPaste />);
-      return `<pre${alignAttr} class="text-white relative">      
-      <code class="hljs">${highlightedCode}</code></pre></br>`;
+      const codeRaw = node.children.map(n => n.text).join('');
+      const highlighted = hljs.highlightAuto(codeRaw).value;
+      return `
+        <pre class="relative  p-4 overflow-auto text-sm text-white"${alignAttr}>
+          <code class="hljs">${highlighted}</code>
+        </pre><br/>
+      `;
     default:
       return children;
   }
@@ -133,6 +135,14 @@ function deserialize(html) {
         return children.map(child => ({ ...child, underline: true }));
       case 'BR':
         return [{ text: '\n' }];
+      case 'IMG':
+        const src = el.getAttribute('src');
+        return [{
+            type: 'image-util',
+            url: src || null,
+            children: [{ text: '' }]
+        }];
+
       default:
         return children;
     }
